@@ -56,7 +56,15 @@ void update(){  // called every frame (unreliable rate, though measured into "fp
 }
 void drawScreen(){
   background(0);
+    
+  noStroke();
   
+  // BACKGROUND GRAY
+  fill(128);
+  rect(width*.675, height*.37, width*.3, height*.4, height*.01);
+  rect(width*.1, height/40.+ height/10*4, width*.8, height/11.0, height*.01);
+//  rect(width*.675, height*.37, width*.3, height*.4, height*.01);
+
   textSize(textSize);
   
   // LARGE TITLES
@@ -74,7 +82,7 @@ void drawScreen(){
   }
   // LARGE COLUMN VALUES
   fill(0);
-  text(ALT, width*.25,height/10.*1);
+  text(int(ALT), width*.45,height/10.*1);
   text(atmosphere.p,width*.25,height/10.*2);
   text(BPSI,width*.25,height/10.*3);
   text(atmosphere.T, width*.25,height/10.*4);
@@ -115,6 +123,18 @@ void drawScreen(){
   noFill();
   rect(width*.6875, height*.04, width*.275, height*.1, height*.005);
   rect(width*.6875, height*.15, width*.275, height*.115, height*.005);
+  rect(width*.025, height*.1, width*.033, height*.8);
+  
+  // FLIGHT LEVELS
+  textSize(textSize*.25);
+  noStroke();
+  fill(255);
+  for(int i = 0; i < 30; i++){
+    if(i < 5) text(" "+i*2, 1, height*.9-i*height*.8/30.);
+    else      text(i*2, 1, height*.9-i*height*.8/30.);
+  }
+  float altScale = ALT/60000.0 * height*.8;
+  rect(width*.03, height*.9-altScale, width*.025, altScale);
 }
 
 void draw(){

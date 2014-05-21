@@ -29,8 +29,6 @@ public
       p = 226.32 * pow(NUMBER_E, -g*(h-11000)/(R*216.65));  // pressure in pa
     }
     density = p/(R*(T+273.15));
-    println("PRES: " + p);
-    println("DENS: " + density);
     a = 331 + ( 0.6 * T );
     g = g0 * pow( (float)radiusEarth/(radiusEarth+h), 2);
     p *= 0.000145037738;  // convert pa to psi
