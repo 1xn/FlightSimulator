@@ -22,16 +22,18 @@ public
     h = altitude;
     if(h < 11000){ // meters, (36,089 ft)
       T = T0 - 6.5 * (float)h / 1000.0; // T = T0 - 1.98 * float(h) / 1000.0;// in ft
-      p = p0 * pow(1 - (0.0065 * h / (T0+273.15)), 5.2561 );
+      p = p0 * pow(1 - (0.0065 * h / (T0+273.15)), 5.2561 );  // pressure in pa
     }
     else{  // above the troposphere
       T = -56.5;  // C, or 216.65 K
-      p = 226.32 * pow(NUMBER_E, -g*(h-11000)/(R*216.65));
+      p = 226.32 * pow(NUMBER_E, -g*(h-11000)/(R*216.65));  // pressure in pa
     }
     density = p/(R*(T+273.15));
+    println("PRES: " + p);
+    println("DENS: " + density);
     a = 331 + ( 0.6 * T );
     g = g0 * pow( (float)radiusEarth/(radiusEarth+h), 2);
-    p *= 0.014503773773;  // convert hPa to psi
+    p *= 0.000145037738;  // convert pa to psi
   }
   void printStats(int xPos, int yPos){
     int fontSize = 16;
@@ -46,7 +48,7 @@ public
 private
   float a0 = 340.294;
   float g0 = 9.80665; 
-  float p0 = 1013.25;
+  float p0 = 101325;
   float T0 = 15; 
   float density0 = 1.225; 
 }

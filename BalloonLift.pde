@@ -11,8 +11,7 @@ float textSize;
 float PAYLOAD;
 boolean mouseDown;
 boolean FIRE, VENT;
-  float R = 287.04;  // real gas constant for air, m^2/Ksec^2
-
+float R = 287.04;  // real gas constant for air, m^2/Ksec^2
 
 void setup(){
   // SETUP GRAPHICS ONLY
@@ -51,9 +50,9 @@ void update(){  // called every frame (unreliable rate, though measured into "fp
   // UPDATE CALCULATIONS
   atmosphere.update(ALT);
   BDENSITY = 101325/(R*(BET+273.15));
-  BPSI = 1013.25 * pow(1 - (0.0065 * ALT / (15+273.15)), 5.2561 );
-  BPSI *= 0.014503773773;
-  BFORCE = (BDENSITY-atmosphere.density) * 9.8 * VOLUME;
+  BPSI = 101325 * pow(1 - (0.0065 * ALT / (15+273.15)), 5.2561 );
+  BPSI *= 0.000145037738;
+  BFORCE = -(BDENSITY-atmosphere.density) * 9.8 * VOLUME;
 }
 void drawScreen(){
   background(0);
@@ -92,11 +91,12 @@ void drawScreen(){
   text(int(elapsedSeconds/3600.) +" : "+ int(elapsedSeconds/60.) +" : "+ elapsedSeconds%60, width*.75, height*.0875);  
   // BUOYANT FORCE, PAYLOAD
   fill(255);
-  rect(width*.7, height*.2, width*.25, height*.05, height*.005);
-  text("BUOYANT / PAYLOAD", width*.7, height*.3);
+  rect(width*.7, height*.165, width*.115, height*.05, height*.005);
+  rect(width*.835, height*.165, width*.115, height*.05, height*.005);
+  text("BUOYANT/PAYLOAD", width*.7, height*.25);
   fill(0);
-  text(int(BFORCE), width*.75, height*.235);
-  text(int(PAYLOAD), width*.85, height*.235);
+  text(int(BFORCE), width*.725, height*.2);
+  text(int(PAYLOAD), width*.875, height*.2);
   
   // DRAW BUTTONS
   textSize(textSize);
@@ -108,6 +108,13 @@ void drawScreen(){
   text("FIRE", width*.74, height*.5);
   if(VENT) fill(255);   else  fill(0);
   text("VENT", width*.74, height*.675);
+  
+  // BORDERS
+  strokeWeight(height*.005);
+  stroke(255);
+  noFill();
+  rect(width*.6875, height*.04, width*.275, height*.1, height*.005);
+  rect(width*.6875, height*.15, width*.275, height*.115, height*.005);
 }
 
 void draw(){
