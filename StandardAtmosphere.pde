@@ -1,6 +1,5 @@
 float NUMBER_E = 2.718281828;
 int radiusEarth = 6371000; // meters, for calculating gravity
-int fontSize = 12;
 // 0.014503773773, convert hPa to psi
 
 class StandardAtmosphere{  
@@ -29,12 +28,13 @@ public
       T = -56.5;  // C, or 216.65 K
       p = 226.32 * pow(NUMBER_E, -g*(h-11000)/(R*216.65));
     }
-    density = p/(R*(T+273.15))*100.0;
+    density = p/(R*(T+273.15));
     a = 331 + ( 0.6 * T );
     g = g0 * pow( (float)radiusEarth/(radiusEarth+h), 2);
     p *= 0.014503773773;  // convert hPa to psi
   }
   void printStats(int xPos, int yPos){
+    int fontSize = 16;
     text("altitude: " + (int(h*10)/10.0) + " m  " + (int(h*32.808)/10.0) + " ft", xPos, yPos + 1*fontSize);
     text("temperature: " + (int(T*1000)/1000.0) + " C", xPos, yPos + 2*fontSize);
     text("pressure: " + (int(p*1000)/1000.0) + " psi", xPos, yPos + 3*fontSize);
