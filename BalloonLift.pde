@@ -7,7 +7,7 @@ float BFORCE;
 float BDENSITY;
 int currentSecond, lastSecond, elapsedSeconds, fps, lastFrameCount;
 StandardAtmosphere atmosphere;
-int textSize;
+int fontSize;
 float PAYLOAD;
 boolean mouseDown;
 boolean FIRE, VENT;
@@ -16,7 +16,7 @@ float R = 287.04;  // real gas constant for air, m^2/Ksec^2
 void setup(){
   // SETUP GRAPHICS ONLY
   size(640,480);
-  textSize = int(height*.09);
+  fontSize = int(height*.09);
   frameRate(15);  // 15 incase running on old computers
   noStroke();
   // FONTS
@@ -65,7 +65,7 @@ void drawScreen(){
   rect(width*.1, height/40.+ height/10*4, width*.8, height/11.0, height*.01);
 //  rect(width*.675, height*.37, width*.3, height*.4, height*.01);
 
-  textSize(textSize);
+  textSize(fontSize);
   
   // LARGE TITLES
   fill(255);
@@ -90,7 +90,7 @@ void drawScreen(){
   text(BDENSITY, width*.25,height/10.*6);
 
   // SMALL COLUMN VALUES
-  textSize(int(textSize*.4));
+  textSize(int(fontSize*.4));
   // CLOCK
   fill(255);
   rect(width*.7, height*.05, width*.25, height*.05, height*.005);
@@ -107,7 +107,7 @@ void drawScreen(){
   text(int(PAYLOAD), width*.875, height*.2);
   
   // DRAW BUTTONS
-  textSize(textSize);
+  textSize(fontSize);
   if(FIRE) fill(0);   else  fill(255);
   rect(width*.7, height*.4, width*.25, height*.15, height*.01);
   if(VENT) fill(0);   else  fill(255);
@@ -126,7 +126,7 @@ void drawScreen(){
   rect(width*.025, height*.1, width*.033, height*.8);
   
   // FLIGHT LEVELS
-  textSize(int(textSize*.25));
+  textSize(int(fontSize*.25));
   noStroke();
   fill(255);
   for(int i = 0; i < 30; i++){
