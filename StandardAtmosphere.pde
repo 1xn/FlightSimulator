@@ -33,15 +33,6 @@ public
     g = g0 * pow( (float)radiusEarth/(radiusEarth+h), 2);
     p *= 0.000145037738;  // convert pa to psi
   }
-  void printStats(int xPos, int yPos){
-    int fontSize = 16;
-    text("altitude: " + (int(h*10)/10.0) + " m  " + (int(h*32.808)/10.0) + " ft", xPos, yPos + 1*fontSize);
-    text("temperature: " + (int(T*1000)/1000.0) + " C", xPos, yPos + 2*fontSize);
-    text("pressure: " + (int(p*1000)/1000.0) + " psi", xPos, yPos + 3*fontSize);
-    text("density: " + (int(density*1000)/1000.0) + " kg/m^3", xPos, yPos + 4*fontSize);
-    text("gravity: " + (int(g*1000)/1000.0) + " m/sec^2", xPos, yPos + 5*fontSize);
-    text("speed of sound: " + (int(a*1000)/1000.0) + " m/sec", xPos, yPos + 6*fontSize);
-  }
 
 private
   float a0 = 340.294;

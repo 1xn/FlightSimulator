@@ -1,3 +1,4 @@
+/* @pjs font="Courier New.ttf, Courier.ttf, monospace"; */      
 float ALT = 0.0;
 float PFM;
 float BET;
@@ -20,8 +21,7 @@ void setup(){
   frameRate(15);  // 15 incase running on old computers
   noStroke();
   // FONTS
-  PFont mono = loadFont("TlwgTypewriter-Bold-48.vlw");
-  textFont(mono);
+  textFont(createFont("Courier New",30));
   atmosphere = new StandardAtmosphere();
   
   // SETUP VARIABLES
