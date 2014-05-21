@@ -7,7 +7,7 @@ float BFORCE;
 float BDENSITY;
 int currentSecond, lastSecond, elapsedSeconds, fps, lastFrameCount;
 StandardAtmosphere atmosphere;
-float textSize;
+int textSize;
 float PAYLOAD;
 boolean mouseDown;
 boolean FIRE, VENT;
@@ -16,7 +16,7 @@ float R = 287.04;  // real gas constant for air, m^2/Ksec^2
 void setup(){
   // SETUP GRAPHICS ONLY
   size(640,480);
-  textSize = height*.09;
+  textSize = int(height*.09);
   frameRate(15);  // 15 incase running on old computers
   noStroke();
   // FONTS
@@ -90,7 +90,7 @@ void drawScreen(){
   text(BDENSITY, width*.25,height/10.*6);
 
   // SMALL COLUMN VALUES
-  textSize(textSize*.4);
+  textSize(int(textSize*.4));
   // CLOCK
   fill(255);
   rect(width*.7, height*.05, width*.25, height*.05, height*.005);
@@ -126,7 +126,7 @@ void drawScreen(){
   rect(width*.025, height*.1, width*.033, height*.8);
   
   // FLIGHT LEVELS
-  textSize(textSize*.25);
+  textSize(int(textSize*.25));
   noStroke();
   fill(255);
   for(int i = 0; i < 30; i++){
