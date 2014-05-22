@@ -6,6 +6,7 @@ float VOLUME;
 float BPSI;
 float BFORCE;
 float BDENSITY;
+float SETTLINGVELOCITY;
 int currentSecond, lastSecond, elapsedSeconds, fps, lastFrameCount;
 StandardAtmosphere atmosphere;
 int fontSize;
@@ -13,6 +14,7 @@ float PAYLOAD;
 boolean mouseDown;
 boolean FIRE, VENT;
 float R = 287.04;  // real gas constant for air, m^2/Ksec^2
+float button1X, button1Y, button1H, button1W, button2X, button2Y, button2W, button2H;
 
 void setup(){
   // SETUP GRAPHICS ONLY
@@ -21,8 +23,19 @@ void setup(){
   frameRate(15);  // 15 incase running on old computers
   noStroke();
   // FONTS
-  textFont(createFont("Courier New",30));
+  textFont(createFont("Courier New Bold",30));
   atmosphere = new StandardAtmosphere();
+  
+  // INTERFACE ELEMENTS
+  button1X = width*.7;
+  button1Y = height*.315;
+  button1W = width*.25;
+  button1H = height*.15;
+  button2X = width*.7;
+  button2Y =  height*.49;
+  button2W = width*.25;
+  button2H = height*.15;
+
   
   // SETUP VARIABLES
   BET = atmosphere.T;
@@ -30,7 +43,7 @@ void setup(){
   VOLUME = 1000;
 }
 void updateOnce(){  // called once per second
-
+  ALT += 1000;//SETTLINGVELOCITY;
 }
 void update(){  // called every frame (unreliable rate, though measured into "fps")
   // DEVICE INPUT
@@ -38,10 +51,10 @@ void update(){  // called every frame (unreliable rate, though measured into "fp
     mouseDown = true;
   else if(!mousePressed && mouseDown)
     mouseDown = false;
-  if(mouseDown && mouseX > width*.7 && mouseX < width*.95 && mouseY > height*.4 && mouseY < height*.55)
+  if(mouseDown && mouseX > button1X && mouseX < button1X+button1W && mouseY > button1Y && mouseY < button1Y+button1H)
     FIRE = true;
   else FIRE = false;
-  if(mouseDown && mouseX > width*.7 && mouseX < width*.95 && mouseY > height*.575 && mouseY < height*.725)
+  if(mouseDown && mouseX > button2X && mouseX < button2X+button2W && mouseY > button2Y && mouseY < button2Y+button2H)
     VENT = true;          
   else VENT = false;  
   if(FIRE) BET+=random(.01,.1);
@@ -53,6 +66,11 @@ void update(){  // called every frame (unreliable rate, though measured into "fp
   BPSI = 101325 * pow(1 - (0.0065 * ALT / (15+273.15)), 5.2561 );
   BPSI *= 0.000145037738;
   BFORCE = -(BDENSITY-atmosphere.density) * 9.8 * VOLUME;
+  // air kinematic viscosity = 1.26 x 10^-4
+  float p = .000126;
+  float coef = .2;
+  float area = 100;
+  SETTLINGVELOCITY = sqrt(BFORCE*2/(coef * area * p));
 }
 void drawScreen(){
   background(0);
@@ -61,7 +79,7 @@ void drawScreen(){
   
   // BACKGROUND GRAY
   fill(128);
-  rect(width*.675, height*.37, width*.3, height*.4, height*.01);
+  rect(width*.6875, height*.2775, width*.275, height*.4, height*.005);
   rect(width*.1, height/40.+ height/10*4, width*.8, height/11.0, height*.01);
 //  rect(width*.675, height*.37, width*.3, height*.4, height*.01);
 
@@ -75,6 +93,7 @@ void drawScreen(){
   text(" OAT",width*.075, height/10.*4);
   text(" BET",width*.075, height/10.*5);
   text("DENS",width*.075, height/10.*6);
+  text("VEL", width*.075, height/10.*7);
   // LARGE COLUMN WHITE BACKGROUNDS
   fill(255);
   for(int i = 0; i < 7; i++){
@@ -82,12 +101,13 @@ void drawScreen(){
   }
   // LARGE COLUMN VALUES
   fill(0);
-  text(int(ALT), width*.45,height/10.*1);
+  text(int(ALT), width*.29,height/10.*1);
   text(atmosphere.p,width*.25,height/10.*2);
   text(BPSI,width*.25,height/10.*3);
   text(atmosphere.T, width*.25,height/10.*4);
   text(BET, width*.25,height/10.*5);
   text(BDENSITY, width*.25,height/10.*6);
+  text(SETTLINGVELOCITY, width*.25, height/10.*7);
 
   // SMALL COLUMN VALUES
   textSize(int(fontSize*.4));
@@ -109,13 +129,13 @@ void drawScreen(){
   // DRAW BUTTONS
   textSize(fontSize);
   if(FIRE) fill(0);   else  fill(255);
-  rect(width*.7, height*.4, width*.25, height*.15, height*.01);
+  rect(button1X, button1Y, button1W, button1H, height*.01);
   if(VENT) fill(0);   else  fill(255);
-  rect(width*.7, height*.575, width*.25, height*.15, height*.01);
+  rect(button2X, button2Y, button2W, button2H, height*.01);
   if(FIRE) fill(255);   else  fill(0);
-  text("FIRE", width*.74, height*.5);
+  text("FIRE", width*.74, height*.415);
   if(VENT) fill(255);   else  fill(0);
-  text("VENT", width*.74, height*.675);
+  text("VENT", width*.74, height*.59);
   
   // BORDERS
   strokeWeight(height*.005);
