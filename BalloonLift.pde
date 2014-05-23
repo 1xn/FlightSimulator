@@ -1,4 +1,3 @@
-/* @pjs font="Courier New.ttf, Courier.ttf, monospace"; */
 float ALT = 0.0;
 float PFM;
 float BET;
@@ -22,7 +21,7 @@ View view;
 
 void setup(){
   // SETUP GRAPHICS ONLY
-  view = new View(640,480);
+  view = new View(800,600);
   
   frameRate(15);  // 15 incase running on old computers
   
@@ -30,7 +29,7 @@ void setup(){
 
   // SETUP VARIABLES
   BET = atmosphere.T;
-  BET = 60.0; // nah, fuck pre-heating.
+//  BET = 60.0; // nah, fuck pre-heating.
   MASS = 500;  //kg
   VOLUME_F = 75000;  // f^3
   VOLUME_M = 2777;   // m^3
@@ -50,7 +49,7 @@ void updateOnce(){  // called once per second
   float area = 18000;
   float dynamic_viscosity = .1; // Pa*s, pascal second, or kg/(m*s), or (N*s)/m^2,
   DRAGFORCE = .5 * atmosphere.p * (VELOCITY*VELOCITY) * coef * area;
-  DRAGFORCE = sqrt(VELOCITY);
+  DRAGFORCE = .5*sqrt(VELOCITY);
   if(DRAGFORCE != 0) DRAGFORCE = 1/DRAGFORCE;
   VELOCITY = VELOCITY * DRAGFORCE;
   ALT += VELOCITY;
