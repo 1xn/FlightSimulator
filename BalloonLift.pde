@@ -1,16 +1,16 @@
-/* @pjs font="Courier New.ttf, Courier.ttf, monospace"; */      
+/* @pjs font="Courier New.ttf, Courier.ttf, monospace"; */
 float ALT = 0.0;
 float PFM;
 float BET;
-float VOLUME;
-float BPSI;
+float VOLUME_F, VOLUME_M;
+float PSI;
 float BFORCE;
 float BDENSITY;
-float SETTLINGVELOCITY;
+float VELOCITY, SETTLINGVELOCITY;
 int currentSecond, lastSecond, elapsedSeconds, fps, lastFrameCount;
 StandardAtmosphere atmosphere;
 int fontSize;
-float PAYLOAD;
+float MASS;
 boolean mouseDown;
 boolean FIRE, VENT;
 float R = 287.04;  // real gas constant for air, m^2/Ksec^2
@@ -23,7 +23,7 @@ void setup(){
   frameRate(15);  // 15 incase running on old computers
   noStroke();
   // FONTS
-  textFont(createFont("Courier New Bold",30));
+  textFont(createFont("Courier New",30));
   atmosphere = new StandardAtmosphere();
   
   // INTERFACE ELEMENTS
@@ -32,18 +32,20 @@ void setup(){
   button1W = width*.25;
   button1H = height*.15;
   button2X = width*.7;
-  button2Y =  height*.49;
+  button2Y = height*.49;
   button2W = width*.25;
   button2H = height*.15;
 
-  
   // SETUP VARIABLES
   BET = atmosphere.T;
-  PAYLOAD = 500;
-  VOLUME = 1000;
+  MASS = 500;  //kg
+  VOLUME_F = 75000;  // f^3
+  VOLUME_M = 2777;   // m^3
+  VELOCITY = 0;
+  SETTLINGVELOCITY = 0;
 }
 void updateOnce(){  // called once per second
-  ALT += 1000;//SETTLINGVELOCITY;
+//  ALT += SETTLINGVELOCITY;
 }
 void update(){  // called every frame (unreliable rate, though measured into "fps")
   // DEVICE INPUT
@@ -62,15 +64,34 @@ void update(){  // called every frame (unreliable rate, though measured into "fp
   
   // UPDATE CALCULATIONS
   atmosphere.update(ALT);
-  BDENSITY = 101325/(R*(BET+273.15));
-  BPSI = 101325 * pow(1 - (0.0065 * ALT / (15+273.15)), 5.2561 );
-  BPSI *= 0.000145037738;
-  BFORCE = -(BDENSITY-atmosphere.density) * 9.8 * VOLUME;
+  // convert atmosphere pressure back to pa
+  BDENSITY = (atmosphere.p * 6894.75728)/(R*(BET+273.15));  // kg/m^3
+//  BPSI = 101325 * pow(1 - (0.0065 * ALT / (BET+273.15)), 5.2561 );
+//  BPSI *= 0.000145037738;
+  BFORCE = -(BDENSITY-atmosphere.density) * 9.8 * VOLUME_M;
+  
+  float Fg = (BDENSITY-atmosphere.density) * 9.8 * 4/3. * 3.14159 * VOLUME_M;
+  float accel = -Fg / MASS;
+  
+  SETTLINGVELOCITY += accel;
+
+  println(accel);
+  float coef = .44;   // http://en.wikipedia.org/wiki/Drag_coefficient
+  float area = 18000;
+  float dynamic_viscosity = .1; // Pa*s, pascal second, or kg/(m*s), or (N*s)/m^2,
+  float DRAGFORCE = .5 * atmosphere.p * (VELOCITY*VELOCITY) * coef * area;
+  
+  // http://www.engineeringtoolbox.com/air-absolute-kinematic-viscosity-d_601.html
+  // imperial units (feet)
   // air kinematic viscosity = 1.26 x 10^-4
-  float p = .000126;
-  float coef = .2;
-  float area = 100;
-  SETTLINGVELOCITY = sqrt(BFORCE*2/(coef * area * p));
+  // air dynamic viscosity   = 3.38 x 10^-7
+  // metric:
+  // 1.983 x 10-5
+  // this one might be better
+  // http://www.engineeringtoolbox.com/dynamic-absolute-kinematic-viscosity-d_412.html
+  float mu = 15;
+  // settling velocity units in feet
+//  SETTLINGVELOCITY = (2 * (BDENSITY-atmosphere.density) * 9.8 * area) / (9*mu);
 }
 void drawScreen(){
   background(0);
@@ -80,7 +101,7 @@ void drawScreen(){
   // BACKGROUND GRAY
   fill(128);
   rect(width*.6875, height*.2775, width*.275, height*.4, height*.005);
-  rect(width*.1, height/40.+ height/10*4, width*.8, height/11.0, height*.01);
+  rect(width*.1, height/40.+ height/10*5, width*.8, height/11.0, height*.01);
 //  rect(width*.675, height*.37, width*.3, height*.4, height*.01);
 
   textSize(fontSize);
@@ -88,12 +109,21 @@ void drawScreen(){
   // LARGE TITLES
   fill(255);
   text(" ALT",width*.075, height/10.*1);
-  text("APSI",width*.075, height/10.*2);
-  text("BPSI",width*.075, height/10.*3);
-  text(" OAT",width*.075, height/10.*4);
-  text(" BET",width*.075, height/10.*5);
-  text("DENS",width*.075, height/10.*6);
+  text(" PSI",width*.075, height/10.*2);
+  text("ADNS",width*.075, height/10.*3);
+  text("BDNS",width*.075, height/10.*4);
+  text(" OAT",width*.075, height/10.*5);
+  text(" BET",width*.075, height/10.*6);
   text("VEL", width*.075, height/10.*7);
+  textSize(fontSize*.5);  
+  text("ft",  width*.59, height/10.*1);
+  text("psi", width*.59, height/10.*2);
+  text("kgm3",width*.59, height/10.*3);
+  text("kgm3",width*.59, height/10.*4);
+  text("C",   width*.59, height/10.*5);
+  text("C",   width*.59, height/10.*6);
+  text("m/s", width*.59, height/10.*7);
+  textSize(fontSize);
   // LARGE COLUMN WHITE BACKGROUNDS
   fill(255);
   for(int i = 0; i < 7; i++){
@@ -103,10 +133,10 @@ void drawScreen(){
   fill(0);
   text(int(ALT), width*.29,height/10.*1);
   text(atmosphere.p,width*.25,height/10.*2);
-  text(BPSI,width*.25,height/10.*3);
-  text(atmosphere.T, width*.25,height/10.*4);
-  text(BET, width*.25,height/10.*5);
-  text(BDENSITY, width*.25,height/10.*6);
+  text(atmosphere.density,width*.25,height/10.*3);
+  text(BDENSITY, width*.25,height/10.*4);
+  text(atmosphere.T, width*.25,height/10.*5);
+  text(BET, width*.25,height/10.*6);
   text(SETTLINGVELOCITY, width*.25, height/10.*7);
 
   // SMALL COLUMN VALUES
@@ -124,7 +154,7 @@ void drawScreen(){
   text("BUOYANT/PAYLOAD", width*.7, height*.25);
   fill(0);
   text(int(BFORCE), width*.725, height*.2);
-  text(int(PAYLOAD), width*.875, height*.2);
+  text(int(MASS*2.20462), width*.875, height*.2);
   
   // DRAW BUTTONS
   textSize(fontSize);
