@@ -8,8 +8,8 @@
 //   17m diameter
 //   200kg weight (100kg envelope alone)
 
-float PI = 3.14159265358979323846264338;
 float R  = 287.04;  // real gas constant for air, m^2/Ksec^2
+int FREQ = 30;  // simulator updates per second
 
 class Balloon{
     Atmosphere a;
@@ -24,10 +24,11 @@ class Balloon{
     float acceleration;     // vertical acceleration (a)    
     // prove that these are necessary
     float density;
+    float diameter;
 //    float pressure;   // NOPE this is always the same as outside
 
     float netForce;
-private
+
     float L;    // aerostatic lift
     float G;    // gross weight
     float I;    // 50% additional or virtual air mass (see paper)
@@ -43,6 +44,7 @@ public
     altitude = 0.0;
     mass = balloon_mass_kg;
     weight = balloon_mass_kg * 9.8;   //TODO: during updates, make sure to recalculate this at every step since gravity changes
+    diameter = balloon_diameter_m;
     S = pow(balloon_diameter_m * .5, 2)*PI;  // AREA: PI*R^2
     volume = pow(balloon_diameter_m * .5, 3) * 4 / 3. * PI;  // VOLUME: 4/3*PI*r^3
     temperature = internal_temperature_c;
@@ -51,6 +53,27 @@ public
     velocity = 0.0;
     acceleration = 0.0;
   }
+  void predict_vertical_motion(int elapsedSeconds){
+    a.atmosphereAtAltitude(altitude);
+    float L = volume * a.density * (1 - a.temperature / temperature);                 // aerostatic lift
+//    double D = .5 * drag_coef * (a.density / a.gravity) * pow(velocity, 2) * b->S;   // aerodynamic drag
+    float G = mass*a.gravity;// fuck! or is it mass;                                  // gross weight
+    float I = 1.5 * volume * a.density / a.gravity * acceleration;    // 50% additional or virtual air mass (see paper)
+    float D = .5 * drag_coef * a.density * pow(velocity, 2) * S;   //½CDρV2A       // aerodynamic drag
+    if(L-G > 0) ; // D = D;  // D is subtracted
+    else if(L-G < 0) D = -D; // D is added
+    // "aerostatic lift is balanced by drag, inertia, and weight"
+    float netForce = L - G - D;
+    float accel = netForce/mass;
+    for(int i = 0; i < elapsedSeconds*FREQ; i++){
+        acceleration = accel/FREQ;
+        velocity += acceleration/FREQ;
+        if(altitude > 0 || velocity > 0)
+            altitude += velocity/FREQ;
+    }
+  }
+
+
   void update_vertical_motion(float times_per_second){    
     a.atmosphereAtAltitude(altitude);
     L = volume * a.density * (1 - a.temperature / temperature);                 // aerostatic lift
@@ -66,9 +89,14 @@ public
     float accel = netForce/mass;
     
     acceleration = accel/times_per_second;
-    velocity += acceleration/times_per_second;
+    if(altitude > 0 || acceleration > 0)
+      velocity += acceleration/times_per_second;
+    else
+      velocity = 0;
     if(altitude > 0 || velocity > 0)
-        altitude += velocity/times_per_second;    
+      altitude += velocity/times_per_second;  
+    else
+      altitude = 0;  
   }
   void log(){
     println("\n\n******** BALLOON *********");
