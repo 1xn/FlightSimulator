@@ -15,9 +15,11 @@ void setup(){
   frameRate(15);  // 15 incase running on old computers
 }
 void updateOnce(){  // called once per second
+//  println(fps);
+  balloonForecast.loadBalloon(balloon);
   for(int i = 0; i < 10; i++){
-//    balloonForecast.predict_vertical_motion(i*360);
-//    view.forecast[i] = balloon.altitude/10000.;
+    balloonForecast.predict_vertical_motion(1, i*360);
+    view.forecast[i] = balloonForecast.altitude/50000.;
   }
 //  balloon.log();
 }

@@ -36,6 +36,22 @@ class Balloon{
 
 public
 
+  void loadBalloon(Balloon c){
+    altitude = c.altitude;
+    mass = c.mass;
+    weight = c.weight;
+    volume = c.volume;
+    temperature = c.temperature;      // ambient_internal_balloon_temperature   (Tg)
+    drag_coef = c.drag_coef;        // coefficient of drag, .4 for most hot air balloons
+    S = c.S;                // horizontal cross sectional area of balloon at maximum diameter
+    velocity = c.velocity;         // vertical velocity (U)
+    acceleration = c.acceleration;     // vertical acceleration (a)    
+    // prove that these are necessary
+    density = c.density;
+    diameter = c.diameter;
+//    float pressure;   // NOPE this is always the same as outside
+  }
+  
   Balloon(float balloon_mass_kg, float balloon_diameter_m, float internal_temperature_c){
 //  balloon_mass_kg: what is normally called "weight" even though it is technically mass. a person's mass is ~70kg
 
@@ -53,26 +69,31 @@ public
     velocity = 0.0;
     acceleration = 0.0;
   }
-  void predict_vertical_motion(int elapsedSeconds){
-    a.atmosphereAtAltitude(altitude);
-    float L = volume * a.density * (1 - a.temperature / temperature);                 // aerostatic lift
+  void predict_vertical_motion(float times_per_second, int elapsedSeconds){
+    for(int i = 0; i < elapsedSeconds; i++){
+      a.atmosphereAtAltitude(altitude);
+      float L = volume * a.density * (1 - a.temperature / temperature);                 // aerostatic lift
 //    double D = .5 * drag_coef * (a.density / a.gravity) * pow(velocity, 2) * b->S;   // aerodynamic drag
-    float G = mass*a.gravity;// fuck! or is it mass;                                  // gross weight
-    float I = 1.5 * volume * a.density / a.gravity * acceleration;    // 50% additional or virtual air mass (see paper)
-    float D = .5 * drag_coef * a.density * pow(velocity, 2) * S;   //½CDρV2A       // aerodynamic drag
-    if(L-G > 0) ; // D = D;  // D is subtracted
-    else if(L-G < 0) D = -D; // D is added
-    // "aerostatic lift is balanced by drag, inertia, and weight"
-    float netForce = L - G - D;
-    float accel = netForce/mass;
-    for(int i = 0; i < elapsedSeconds*FREQ; i++){
-        acceleration = accel/FREQ;
-        velocity += acceleration/FREQ;
-        if(altitude > 0 || velocity > 0)
-            altitude += velocity/FREQ;
+      float G = mass*a.gravity;// fuck! or is it mass;                                  // gross weight
+      float I = 1.5 * volume * a.density / a.gravity * acceleration;    // 50% additional or virtual air mass (see paper)
+      float D = .5 * drag_coef * a.density * pow(velocity, 2) * S;   //½CDρV2A       // aerodynamic drag
+      if(L-G > 0) ; // D = D;  // D is subtracted
+      else if(L-G < 0) D = -D; // D is added
+      // "aerostatic lift is balanced by drag, inertia, and weight"
+      float netForce = L - G - D;
+      float accel = netForce/mass;
+
+      acceleration = accel/times_per_second;
+      if(altitude > 0 || acceleration > 0)
+        velocity += acceleration/times_per_second;
+      else
+        velocity = 0;
+      if(altitude > 0 || velocity > 0)
+        altitude += velocity/times_per_second;  
+      else
+        altitude = 0;  
     }
   }
-
 
   void update_vertical_motion(float times_per_second){    
     a.atmosphereAtAltitude(altitude);

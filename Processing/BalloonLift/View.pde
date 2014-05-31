@@ -172,9 +172,17 @@ class View
     stroke(0);
     strokeWeight(3);
     for(int i = 1; i < 10; i++){
-      line(width*.71+width*.25*(i-1)/10., height*.6+width*.22-width*.25*forecast[i-1], width*.71 + width*.25*i/10., height*.6+width*.22-width*.25*forecast[i]);
+      line(width*.72+width*.25*(i-1)/10., height*.6+width*.23-width*.25*forecast[i-1], width*.72 + width*.25*i/10., height*.6+width*.23-width*.25*forecast[i]);
     }
      
+     fill(0);
+    textSize(int(fontSize*.25));
+    text("0", width*.72, height*.925);
+    text("   1 hour", width*.85, height*.925);
+    text("5", width*.72, height*(.925*.75+.65*.25));
+    text("10", width*.72, height*((.925+.65)*.5));
+    text("15", width*.72, height*(.925*.25+.65*.75));
+    text("20,000 m", width*.72, height*.65);
      
      
 
