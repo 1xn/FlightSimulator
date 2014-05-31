@@ -1,4 +1,3 @@
-
 class View
 {
   public
@@ -48,37 +47,37 @@ class View
     fill(255);
     text(" ALT",width*.075, height/10.*1);
     text(" PSI",width*.075, height/10.*2);
-    text("ADNS",width*.075, height/10.*3);
-    text("BDNS",width*.075, height/10.*4);
+    text(" VEL", width*.075, height/10.*3);
+    text(" ACC", width*.075, height/10.*4);
+//    text("ADNS",width*.075, height/10.*3);
+//    text("BDNS",width*.075, height/10.*4);
     text(" OAT",width*.075, height/10.*5);
     text(" BET",width*.075, height/10.*6);
-    text(" VEL", width*.075, height/10.*7);
-    text(" ACC", width*.075, height/10.*8);
     textSize(fontSize*.5);  
     text("ft",  width*.59, height/10.*1);
     text("psi", width*.59, height/10.*2);
-    text("kgm3",width*.59, height/10.*3);
-    text("kgm3",width*.59, height/10.*4);
+    text("m/s", width*.59, height/10.*3);
+    text("m/s2",width*.59, height/10.*4);
+//    text("kgm3",width*.59, height/10.*3);
+//    text("kgm3",width*.59, height/10.*4);
     text("C",   width*.59, height/10.*5);
     text("C",   width*.59, height/10.*6);
-    text("m/s", width*.59, height/10.*7);
-    text("m/s2",width*.59, height/10.*8);
     textSize(fontSize);
     // LARGE COLUMN WHITE BACKGROUNDS
     fill(255);
-    for(int i = 0; i < 8; i++){
+    for(int i = 0; i < 6; i++){
       rect(width*.25, height/40.+ height/10.*i, width*.33, height/11.0, height*.01);
     }
     // LARGE COLUMN VALUES
     fill(0);
-    text(int(ALT), width*.29,height/10.*1);
-    text(atmosphere.p,width*.25,height/10.*2);
-    text(atmosphere.density,width*.25,height/10.*3);
-    text(BDENSITY, width*.25,height/10.*4);
-    text(atmosphere.T, width*.25,height/10.*5);
-    text(BET, width*.25,height/10.*6);
-    text(VELOCITY, width*.25, height/10.*7);
-    text(ACCEL, width*.25, height/10.*8);
+    text(int(balloon.altitude*METERS_TO_FEET), width*.29,height/10.*1);
+    text(atmosphere.pressure,width*.25,height/10.*2);
+//    text(atmosphere.density,width*.25,height/10.*3);
+//    text(balloon.density, width*.25,height/10.*4);
+    text(balloon.velocity, width*.25, height/10.*3);
+    text(balloon.acceleration, width*.25, height/10.*4);
+    text(atmosphere.temperature, width*.25,height/10.*5);
+    text(balloon.temperature, width*.25,height/10.*6);
 
     // SMALL COLUMN VALUES
     textSize(int(fontSize*.4));
@@ -94,8 +93,8 @@ class View
     rect(width*.835, height*.165, width*.115, height*.05, height*.005);
     text("BUOYANT/PAYLOAD", width*.7, height*.25);
     fill(0);
-    text(int(BFORCE) + "kg", width*.705, height*.2);
-    text(int(MASS) + "kg", width*.85, height*.2);
+    text(int(balloon.netForce) + "kg", width*.705, height*.2);
+    text(int(balloon.mass) + "kg", width*.85, height*.2);
   
     // DRAW BUTTONS
     textSize(fontSize);
@@ -124,8 +123,17 @@ class View
       if(i < 5) text(" "+i*2, 1, height*.9-i*height*.8/30.);
       else      text(i*2, 1, height*.9-i*height*.8/30.);
     }
-    float altScale = ALT/60000.0 * height*.8;
+    float altScale = balloon.altitude*METERS_TO_FEET/60000.0 * height*.8;
     rect(width*.03, height*.9-altScale, width*.025, altScale);
-  }
+  } 
   
+  // BOTTOM VISUALIZATIONS
+  
+  stroke(255);
+  strokeWeight(1);
+  noFill();
+  for(int i = 1; i < 7; i++){
+    float r = sqrt(i)*height*.1;
+    ellipse(width*.2, height*.9, r, r);
+  }
 }
