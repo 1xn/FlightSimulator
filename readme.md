@@ -1,14 +1,14 @@
 # aerostats, balloons, and airships
 
-modeling the aerostatic lift and aerodynamic drag to predict the vertical motion of hot air balloons
+modeling aerostatic lift and aerodynamic drag to simulate the vertical motion of a hot air balloon
 
 # properties
 
 ```c
 float altitude;
-float mass;
-float weight;
-float volume;
+float mass;          // combined everything
+float weight;        // combined everything
+float volume;        // envelope only
 float temperature;   // ambient internal balloon temperature
 float drag_coef;     // coefficient of drag, .4 for typical hot air balloon
 float S;             // horizontal cross sectional area of balloon at maximum diameter

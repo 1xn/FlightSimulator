@@ -102,6 +102,9 @@ public
     G = mass*a.gravity;// fuck! or is it b->mass;                                  // gross weight
     I = 1.5 * volume * a.density / a.gravity * acceleration;    // 50% additional or virtual air mass (see paper)
     D = .5 * drag_coef * a.density * pow(velocity, 2) * S;  //½CDρV2A  // aerodynamic drag
+    
+    // units of D:
+    //  kg/m^3 * m^2/s^2 * m^2    simplifies to    kg*m/s^2
 
     if(L-G > 0) ; // D = D;  // D is subtracted
     else if(L-G < 0) D = -D; // D is added
