@@ -4,7 +4,7 @@
 // mit open source software license
 
 float EARTH_RADIUS = 6371000.0;   // meters
-float REAL_GAS_CONSTANT = 287.04; // earth air, m^2/Ksec^2
+float REAL_GAS_CONSTANT = 287.058; // earth air, m^2/Ksec^2
 float E = 2.71828182845904523536028747135266250;
 float METERS_TO_FEET = 3.28083989501312;
 float HPA_TO_PSI = 0.014503773773;
@@ -24,7 +24,7 @@ class Atmosphere{
   float  speed_of_sound; // m/sec
 
   void atmosphereAtAltitude(float altitude){
-    if(altitude < 0.0 || altitude > 20000.0) println("ERROR: ALTITUDE EXCEEDING ACCEPTABLE RANGE");   // calculations only valid between sea level and 20,000m
+    if(altitude < -50.0 || altitude > 20000.0) println("ERROR: ALTITUDE EXCEEDING ACCEPTABLE RANGE: " + altitude);   // calculations only valid between sea level and 20,000m
     gravity = SEA_LEVEL_GRAVITY * pow( EARTH_RADIUS / (EARTH_RADIUS+altitude), 2);
     if(altitude < 11000.0){ // meters, (36,089 ft)
         temperature = SEA_LEVEL_TEMPERATURE - 6.5 * altitude / 1000.0; // -= 1.98 * altitude / 1000.0; if using feet

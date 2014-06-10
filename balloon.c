@@ -4,11 +4,6 @@
 // mit open source software license
 // robby kraft
 
-
-// some typical balloon dimensions:
-//   17m diameter
-//   200kg weight (100kg envelope alone)
-
 #include "standard_atmosphere.c"  // get the most recent version at: github.com/PacificSpaceflight/
 
 #define PI  3.14159265358979323846264338
@@ -18,6 +13,7 @@ typedef struct balloon balloon;
 struct balloon{
     double altitude;
     double mass;
+    double mass_air;
     double weight;
     double volume;
     double temperature;      // ambient_internal_balloon_temperature   (Tg)
@@ -26,8 +22,6 @@ struct balloon{
     double velocity;         // vertical velocity (U)
     double acceleration;     // vertical acceleration (a)
     
-    
-    // prove that these are necessary
     double diameter;
     double density;
 //    double pressure;   // NOPE this is always the same as outside
@@ -47,6 +41,7 @@ balloon make_balloon(double balloon_mass_kg, double balloon_diameter_m, double i
     b.velocity = 0.0;
     b.acceleration = 0.0;
     b.diameter = balloon_diameter_m;
+    b.density = (1.22)/(287.058*(temperature+273.15))*100.0;
     return b;
 }
 
@@ -54,87 +49,53 @@ balloon make_balloon(double balloon_mass_kg, double balloon_diameter_m, double i
 #define FREQ 30  // simulator updates per second
 
 void predict_vertical_motion(balloon *b, unsigned int elapsedSeconds){
-    atmosphere a = atmosphereAtAltitude(b->altitude);
-    double L = b->volume * a.density * (1 - a.temperature / b->temperature);                 // aerostatic lift
-//    double D = .5 * b->drag_coef * (a.density / a.gravity) * pow(b->velocity, 2) * b->S;   // aerodynamic drag
-    double G = b->mass*a.gravity;// fuck! or is it b->mass;                                  // gross weight
-    double I = 1.5 * b->volume * a.density / a.gravity * b->acceleration;    // 50% additional or virtual air mass (see paper)
-    double D = .5 * b->drag_coef * a.density * pow(b->velocity, 2) * b->S;   //½CDρV2A       // aerodynamic drag
-    if(L-G > 0) ; // D = D;  // D is subtracted
-    else if(L-G < 0) D = -D; // D is added
-    // "aerostatic lift is balanced by drag, inertia, and weight"
-    double netForce = L - G - D;
-    double accel = netForce/b->mass;
-    for(int i = 0; i < elapsedSeconds*FREQ; i++){
-        b->acceleration = accel/FREQ;
-        if(b->altitude > 0 || b->acceleration > 0)
-            b->velocity += b->acceleration/FREQ;
-        else
-            velocity = 0;
+
+    for(int i = 0; i < elapsedSeconds; i++){
+        temperature -= 0.001*FREQ;
+        atmosphere a = atmosphereAtAltitude(b->altitude);
         
-        if(b->altitude > 0 || b->velocity > 0)
-            b->altitude += b->velocity/FREQ;
+        density = (a.pressure/HPA_TO_PSI)/(287.058*(temperature+273.15))*100.0;
+        mass_air = volume * density;
+        
+        float newVelocity;
+        float _inside = 8 * (diameter*.5) * 9.8 / (3*drag_coef) * (1 - 3*(mass+mass_air)/(4*3.14159*a.density*pow((diameter*.5),3) ) );
+        if(_inside < 0) newVelocity = -sqrt( -_inside );
+        else newVelocity = sqrt( _inside );
+        
+        acceleration = newVelocity-velocity;
+        velocity = newVelocity;
+        
+        if(altitude > 0 || velocity > 0)
+            altitude += velocity/FREQ;
+        else if(velocity < 0)
+            velocity = 0;
         else
             altitude = 0;
     }
 }
 
-
-//½
-
-//   L + G + D + I = 0
-//
-//  L = V wa (1 - Ta / Tg)
-//  D = .5 Cd (wa / g) U^2 S
-//  I = ma
-//  G = gross weight excluding weight of lifting gas
-//
-
-void update_vertical_motion(balloon *b){
+void increment_vertical_motion(balloon *b){
     
+    temperature -= 0.001;  //TODO: temperature leak
     atmosphere a = atmosphereAtAltitude(b->altitude);
     
-//    0 =    V * wa * (1 - Ta / Tg)      +       .5 * Cd * (wa / g) * U^2 * S     +      ma       +      mg
+    density = (a.pressure/HPA_TO_PSI)/(287.058*(temperature+273.15))*100.0;
+    mass_air = volume * density;
+   
+    float newVelocity;
+    float _inside = 8 * (diameter*.5) * 9.8 / (3*drag_coef) * (1 - 3*(mass+mass_air)/(4*3.14159*a.density*pow((diameter*.5),3) ) );
+    if(_inside < 0) newVelocity = -sqrt( -_inside );
+    else newVelocity = sqrt( _inside );
     
-//    0 = b->volume*a.density*(1-a.temperature/b->temperature) + .5*b->drag_coef*(a.density/a.gravity)*pow(velocity,2)*b->S + b->mass*accel + b->mass*a.gravity;
-    
-//    U   =    sqrtf(    ( balloon->volume * wa * (1 - Ta / Tg)      +      ma       +      mg  )  / (-.5 * Cd * (wa / g) *  S)     )
-    
-    double L = b->volume * a.density * (1 - a.temperature / b->temperature);                 // aerostatic lift
-    double D = .5 * b->drag_coef * (a.density / a.gravity) * pow(b->velocity, 2) * b->S;     // aerodynamic drag
-    double G = b->mass*a.gravity;// fuck! or is it b->mass;                                  // gross weight
-    double I = 1.5 * b->volume * a.density / a.gravity * b->acceleration;    // 50% additional or virtual air mass (see paper)
-    
-    double D2 = .5 * b->drag_coef * a.density * pow(b->velocity, 2) * b->S;  //½CDρV2A       // aerodynamic drag
-    
-    if(L-G > 0) ; // D2 = D2;  // D is subtracted
-    else if(L-G < 0) D2 = -D2; // D is added
-    
-    // "aerostatic lift is balanced by drag, inertia, and weight"
-    double netForce = L - G - D2;
-    
-    double accel = netForce/b->mass;
-    
-    b->acceleration = accel;
-    if(b->altitude > 0 || b->acceleration > 0)
-        b->velocity += b->acceleration;
-    else
-        velocity = 0;
+    acceleration = newVelocity-velocity;
+    velocity = newVelocity;
     
     if(b->altitude > 0 || b->velocity > 0)
         b->altitude += b->velocity;
+    else if(velocity < 0)
+        velocity = 0;
     else
         altitude = 0;
-
-    printf("##### VERTICAL MOTION #####\n");
-    printf("### L: %.3f\n",L);
-    printf("### D: %.3f\n",D);
-    printf("### G: %.3f\n",G);
-    printf("### I: %.3f\n",I);
-//    printf("### NET: %.3f\n", net_force);
-    
-    
-//    b->velocity = sqrtf( (b->volume * a.density * (1 - a.temperature / b->temperature) + b->mass*a.gravity + 1.5 * b->volume * a.density / a.gravity * b->acceleration ) / (-.5 * b->drag_coef * (a.density / a.gravity) *  b->S) );
 }
 
 

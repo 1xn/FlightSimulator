@@ -7,11 +7,14 @@ Atmosphere atmosphere;
 Balloon balloon, balloonForecast;
 View view;
 
+float START_TEMP = 69;
+float fireAmount = 0;
+
 void setup(){
   view = new View(800,600);
   atmosphere = new Atmosphere();
-  balloon = new Balloon(200, 17, 39);          // these have to be the same values
-  balloonForecast = new Balloon(200, 17, 39);  //
+  balloon = new Balloon(500, 17, START_TEMP);          // these have to be the same values
+  balloonForecast = new Balloon(500, 17, START_TEMP);  //  39.7
   frameRate(15);  // 15 incase running on old computers
 }
 void updateOnce(){  // called once per second
@@ -23,12 +26,20 @@ void updateOnce(){  // called once per second
   }
 //  balloon.log();
 }
-void update(){  // called every frame (unreliable rate, though measured into "fps")  
+void update(){  // every frame (variable, screen refresh, corrected by taking account "fps")  
   atmosphere.atmosphereAtAltitude(balloon.altitude);
   balloon.update_vertical_motion(fps);
   view.update();
-  if(FIRE) balloon.temperature+=random(.01,.5);
-  if(VENT) balloon.temperature-=random(.01,.5);
+  if(FIRE){ 
+    fireAmount +=random(.00001,.0005);
+    if(fireAmount > .05) fireAmount = .05;
+    balloon.temperature+=fireAmount;
+  }
+  if(VENT){ 
+    fireAmount +=random(.00005,.0025);
+    if(fireAmount > .05) fireAmount = .05;
+    balloon.temperature-=fireAmount;
+  }
 }
 void draw(){
   currentSecond = second();
@@ -40,7 +51,8 @@ void draw(){
     updateOnce();
 //    println(elapsedSeconds + ": Frames:" + fps + "/sec");
   }
-  update();
+  if(elapsedSeconds > 1)
+    update();
   view.draw();
 }
 void mousePressed(){
@@ -48,4 +60,5 @@ void mousePressed(){
 }
 void mouseReleased(){
   mouseDown = false;
+  fireAmount = 0;
 }
