@@ -4,6 +4,13 @@
 // mit open source software license
 // robby kraft
 
+
+//////////////////////
+//TODO:
+// cannot vent to below the OAT
+// LIFT and DRAG negative signs, arrow boxes
+//
+
 float R  = 287.04;  // real gas constant for air, m^2/Ksec^2
 int FREQ = 30;  // simulator updates per second
 
@@ -24,12 +31,8 @@ class Balloon{
     float diameter;
 //    float pressure;   // NOPE this is always the same as outside
 
-    float netForce;
-
-    float L;    // aerostatic lift
-    float G;    // gross weight
-    float I;    // 50% additional or virtual air mass (see paper)
-    float D;    // aerodynamic drag
+    float forceLift;
+    float forceDrag;
 
 public
 
@@ -70,35 +73,15 @@ public
 
   void update_vertical_motion(float times_per_second){
 
-    temperature -= 0.001;    
     a.atmosphereAtAltitude(altitude);
 
     density = (a.pressure/HPA_TO_PSI)/(287.058*(temperature+273.15))*100.0;
     mass_air = volume * density;
 
-//    L = volume * a.density * (1 - a.temperature / temperature);               // aerostatic lift
-//    D = .5 * drag_coef * (a.density / a.gravity) * pow(velocity, 2) * S;    // aerodynamic drag
-//    G = mass;// fuck! or is it b->mass*a.gravity;                             // gross weight
-//    I = 1.5 * volume * a.density / a.gravity * acceleration;    // 50% additional or virtual air mass (see paper)
-
-//    if(L-G > 0) ; // D = D;  // D is subtracted
-//    else if(L-G < 0) D = -D; // D is added
- 
-//    L = LG;
-//    G = 0;
-//    netForce = L - G - D;
-     
-    L = (volume * a.density - (mass + mass_air) ) * a.gravity;               // force free lift
-    
-
-    D = .5 * drag_coef * a.density * pow(velocity, 2) * S;  //½CDρV2A  // aerodynamic drag
-     
-    netForce = L - D;
-
-//    if(netForce > 0); //I = I;      // I is subtracted
-//    else if(netForce < 0) I = -I;  // I is added
-//    netForce = netForce - I;
-    
+    forceLift = (volume * a.density - (mass + mass_air) ) * a.gravity;               // force free lift
+    forceDrag = .5 * drag_coef * a.density * pow(velocity, 2) * S;  //½CDρV2A  // aerodynamic drag
+    if(velocity < 0) forceDrag = -forceDrag;
+  
     float newVelocity;
     float _inside = 8 * (diameter*.5) * 9.8 / (3*drag_coef) * (1 - 3*(mass+mass_air)/(4*3.14159*a.density*pow((diameter*.5),3) ) );
     if(_inside < 0) newVelocity = -sqrt( -_inside );
@@ -106,16 +89,6 @@ public
 
     acceleration = newVelocity-velocity;
     velocity = newVelocity;
-//    float accel = netForce/mass;
-    
-//    acceleration = accel/times_per_second;
-//    if(altitude > 0 || acceleration > 0)
-//      velocity += acceleration/times_per_second;
-//    else
-//      velocity = 0;
-
-//    if(altitude <= 0 && velocity < 0)
-//      velocity = 0;
 
     if(altitude > 0 || velocity > 0){
       altitude += velocity/times_per_second;  
@@ -130,34 +103,16 @@ public
   
   void predict_vertical_motion(float times_per_second, int elapsedSeconds){
     for(int i = 0; i < elapsedSeconds; i++){
-      temperature -= 0.001*times_per_second;    
+      temperature += (-.0025)*times_per_second;   
       a.atmosphereAtAltitude(altitude);
-
-//      float L = volume * a.density * (1 - a.temperature / temperature);                 // aerostatic lift
-//      float D = .5 * drag_coef * (a.density / a.gravity) * pow(velocity, 2) * S;   // aerodynamic drag
-//      float G = mass*a.gravity;// fuck! or is it mass;                                  // gross weight
-//      float I = 1.5 * volume * a.density / a.gravity * acceleration;    // 50% additional or virtual air mass (see paper)
-//      float D = .5 * drag_coef * a.density * pow(velocity, 2) * S;   //½CDρV2A       // aerodynamic drag
-//      if(L-G > 0) ; // D = D;  // D is subtracted
-//      else if(L-G < 0) D = -D; // D is added
-      // "aerostatic lift is balanced by drag, inertia, and weight"
-//      float netForce = L - G - D;      
-//      if(netForce > 0); //I = I;      // I is subtracted
-//      else if(netForce < 0) I = -I;  // I is added
-//      netForce = netForce - I;
 
       density = (a.pressure/HPA_TO_PSI)/(287.058*(temperature+273.15))*100.0;
       mass_air = volume * density;
-      L = (volume * a.density - (mass + mass_air) ) * a.gravity;               // force free lift
+      forceLift = (volume * a.density - (mass + mass_air) ) * a.gravity;               // force free lift
 
-      D = .5 * drag_coef * a.density * pow(velocity, 2) * S;  //½CDρV2A  // aerodynamic drag
-     
-      netForce = L - D;
-
-//    if(netForce > 0); //I = I;      // I is subtracted
-//    else if(netForce < 0) I = -I;  // I is added
-//    netForce = netForce - I;
-
+      forceDrag = .5 * drag_coef * a.density * pow(velocity, 2) * S;  //½CDρV2A  // aerodynamic drag
+      if(velocity < 0) forceDrag = -forceDrag;
+      
       float newVelocity;
       float _inside = 8 * (diameter*.5) * 9.8 / (3*drag_coef) * (1 - 3*(mass+mass_air)/(4*3.14159*a.density*pow((diameter*.5),3) ) );
       if(_inside < 0) newVelocity = -sqrt( -_inside );
@@ -166,13 +121,6 @@ public
       acceleration = newVelocity-velocity;
       velocity = newVelocity;
 
-
-//      float accel = netForce/mass;
-//      acceleration = accel/times_per_second;
-//      if(altitude > 0 || acceleration > 0)
-//        velocity += acceleration/times_per_second;
-//      else
-//        velocity = 0;
       if(altitude > 0 || velocity > 0){
         altitude += velocity/times_per_second;  
       }
@@ -197,11 +145,9 @@ public
     println("- VELOCITY: " + velocity);
     println("- ACCELERATION: " + acceleration);
     println("##### VERTICAL MOTION #####");
-    println("### L: " + L);
-    println("### D: " + D);
-    println("### G: " + G);
-    println("### I: " + I);   
-    println("### L-G: " + (L-G));  
+    println("### LIFT: " + forceLift);
+    println("### DRAG: " + forceDrag); 
+    println("### LIFT-DRAG: " + (forceLift-forceDrag));  
 
   }
 };

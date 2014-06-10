@@ -8,7 +8,11 @@ Balloon balloon, balloonForecast;
 View view;
 
 float START_TEMP = 69;
-float fireAmount = 0;
+float firePower = 0;
+float deltaTemp = 0;
+float deltaTempDueToEquilibrium;
+float deltaTempDueToFire;
+float heatConduct;
 
 void setup(){
   view = new View(800,600);
@@ -16,6 +20,8 @@ void setup(){
   balloon = new Balloon(500, 17, START_TEMP);          // these have to be the same values
   balloonForecast = new Balloon(500, 17, START_TEMP);  //  39.7
   frameRate(15);  // 15 incase running on old computers
+  
+  deltaTempDueToEquilibrium = -0.0001;
 }
 void updateOnce(){  // called once per second
 //  println(fps);
@@ -31,15 +37,30 @@ void update(){  // every frame (variable, screen refresh, corrected by taking ac
   balloon.update_vertical_motion(fps);
   view.update();
   if(FIRE){ 
-    fireAmount +=random(.00001,.0005);
-    if(fireAmount > .05) fireAmount = .05;
-    balloon.temperature+=fireAmount;
+    firePower += random(.00002,.0001);
+    if(firePower > .0025) firePower = .025;
   }
   if(VENT){ 
-    fireAmount +=random(.00005,.0025);
-    if(fireAmount > .05) fireAmount = .05;
-    balloon.temperature-=fireAmount;
+    firePower = -random(.00005,.00025);
+    if(firePower < -.05) firePower = -.05;
   }
+  if(!mousePressed && (deltaTemp > 0 || deltaTemp < -.0025) ){
+    deltaTemp *= 0.95;
+  }
+  deltaTempDueToFire = firePower;
+//  println("DIFFERENCE: "+ (balloon.temperature + atmosphere.temperature)*.5);
+  
+  float tempDiff = ( (balloon.temperature + atmosphere.temperature)*.5);
+  heatConduct = 0.00005 * tempDiff;   // (stored positive, usually used as a negative) about .0025 
+  deltaTempDueToEquilibrium = -heatConduct * .05;
+  
+  if(deltaTemp > -heatConduct) 
+    deltaTemp += deltaTempDueToEquilibrium;
+    
+  if(deltaTemp > -.09 && deltaTemp < .045)
+    deltaTemp += deltaTempDueToFire;
+    
+  balloon.temperature += deltaTemp * tempDiff/50;
 }
 void draw(){
   currentSecond = second();
@@ -49,6 +70,7 @@ void draw(){
     fps = (frameCount-lastFrameCount);
     lastFrameCount = frameCount;
     updateOnce();
+    println("HEAT Conductivity: " + heatConduct);
 //    println(elapsedSeconds + ": Frames:" + fps + "/sec");
   }
   if(elapsedSeconds > 1)
@@ -60,5 +82,5 @@ void mousePressed(){
 }
 void mouseReleased(){
   mouseDown = false;
-  fireAmount = 0;
+  firePower = 0;
 }
