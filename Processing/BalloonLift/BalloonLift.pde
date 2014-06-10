@@ -70,7 +70,7 @@ void draw(){
     fps = (frameCount-lastFrameCount);
     lastFrameCount = frameCount;
     updateOnce();
-    println("HEAT Conductivity: " + heatConduct);
+//    println("HEAT Conductivity: " + heatConduct);
 //    println(elapsedSeconds + ": Frames:" + fps + "/sec");
   }
   if(elapsedSeconds > 1)
