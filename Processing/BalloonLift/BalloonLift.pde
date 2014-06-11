@@ -61,6 +61,7 @@ void update(){  // every frame (variable, screen refresh, corrected by taking ac
     deltaTemp += deltaTempDueToFire;
     
   balloon.temperature += deltaTemp * tempDiff/50;
+  if(balloon.temperature < atmosphere.temperature) balloon.temperature = atmosphere.temperature;
 }
 void draw(){
   currentSecond = second();
