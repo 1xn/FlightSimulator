@@ -25,6 +25,9 @@ struct balloon{
     double diameter;
     double density;
 //    double pressure;   // NOPE this is always the same as outside
+    
+    float forceLift;
+    float forceDrag;
 };
 
 
@@ -51,51 +54,59 @@ balloon make_balloon(double balloon_mass_kg, double balloon_diameter_m, double i
 void predict_vertical_motion(balloon *b, unsigned int elapsedSeconds){
 
     for(int i = 0; i < elapsedSeconds; i++){
-        temperature -= 0.001*FREQ;
+        b->temperature -= 0.001*FREQ;
         atmosphere a = atmosphereAtAltitude(b->altitude);
         
-        density = (a.pressure/HPA_TO_PSI)/(287.058*(temperature+273.15))*100.0;
-        mass_air = volume * density;
-        
+        b->density = (a.pressure/HPA_TO_PSI)/(287.058*(temperature+273.15))*100.0;
+        b->mass_air = b->volume * b->density;
+
+        b->forceLift = (b->volume * a.density - (b->mass + b->mass_air) ) * a.gravity;               // force free lift
+        b->forceDrag = .5 * b->drag_coef * a.density * pow(b->velocity, 2) * S;  //½CDρV2A  // aerodynamic drag
+        if(b->velocity < 0) b->forceDrag = -(b->forceDrag);
+
         float newVelocity;
-        float _inside = 8 * (diameter*.5) * 9.8 / (3*drag_coef) * (1 - 3*(mass+mass_air)/(4*3.14159*a.density*pow((diameter*.5),3) ) );
+        float _inside = 8 * (b->diameter*.5) * 9.8 / (3*b->drag_coef) * (1 - 3*(b->mass+b->mass_air)/(4*3.14159*a.density*pow((b->diameter*.5),3) ) );
         if(_inside < 0) newVelocity = -sqrt( -_inside );
         else newVelocity = sqrt( _inside );
         
-        acceleration = newVelocity-velocity;
-        velocity = newVelocity;
+        b->acceleration = newVelocity-b->velocity;
+        b->velocity = newVelocity;
         
-        if(altitude > 0 || velocity > 0)
-            altitude += velocity/FREQ;
-        else if(velocity < 0)
-            velocity = 0;
+        if(b->altitude > 0 || b->velocity > 0)
+            b->altitude += b->velocity/FREQ;
+        else if(b->velocity < 0)
+            b->velocity = 0;
         else
-            altitude = 0;
+            b->altitude = 0;
     }
 }
 
 void increment_vertical_motion(balloon *b){
     
-    temperature -= 0.001;  //TODO: temperature leak
+    b->temperature -= 0.001;  //TODO: temperature leak
     atmosphere a = atmosphereAtAltitude(b->altitude);
     
-    density = (a.pressure/HPA_TO_PSI)/(287.058*(temperature+273.15))*100.0;
-    mass_air = volume * density;
-   
+    b->density = (a.pressure/HPA_TO_PSI)/(287.058*(b->temperature+273.15))*100.0;
+    b->mass_air = b->volume * b->density;
+    
+    b->forceLift = (b->volume * a.density - (b->mass + b->mass_air) ) * a.gravity;               // force free lift
+    b->forceDrag = .5 * b->drag_coef * a.density * pow(b->velocity, 2) * S;  //½CDρV2A  // aerodynamic drag
+    if(b->velocity < 0) b->forceDrag = -(b->forceDrag);
+
     float newVelocity;
-    float _inside = 8 * (diameter*.5) * 9.8 / (3*drag_coef) * (1 - 3*(mass+mass_air)/(4*3.14159*a.density*pow((diameter*.5),3) ) );
+    float _inside = 8 * (b->diameter*.5) * 9.8 / (3*b->drag_coef) * (1 - 3*(b->mass+b->mass_air)/(4*3.14159*a.density*pow((b->diameter*.5),3) ) );
     if(_inside < 0) newVelocity = -sqrt( -_inside );
     else newVelocity = sqrt( _inside );
     
-    acceleration = newVelocity-velocity;
-    velocity = newVelocity;
+    b->acceleration = newVelocity-b->velocity;
+    b->velocity = newVelocity;
     
     if(b->altitude > 0 || b->velocity > 0)
         b->altitude += b->velocity;
-    else if(velocity < 0)
-        velocity = 0;
+    else if(b->velocity < 0)
+        b->velocity = 0;
     else
-        altitude = 0;
+        b->altitude = 0;
 }
 
 
