@@ -30,6 +30,10 @@ void updateOnce(){  // called once per second
     balloonForecast.predict_vertical_motion(1, i*360);
     view.forecast[i] = balloonForecast.altitude/50000.;
   }
+  if(currentSecond % 2 == 0)
+    view.flashAlpha = 0;
+  else
+    view.flashAlpha = 255;
 //  balloon.log();
 }
 void update(){  // every frame (variable, screen refresh, corrected by taking account "fps")  
@@ -37,7 +41,7 @@ void update(){  // every frame (variable, screen refresh, corrected by taking ac
   balloon.update_vertical_motion(fps);
   view.update();
   if(FIRE){ 
-    firePower += random(.00002,.0001);
+    firePower = firePower + random(.00002,.0001);
     if(firePower > .0025) firePower = .025;
   }
   if(VENT){ 
@@ -67,7 +71,7 @@ void draw(){
   currentSecond = second();
   if(lastSecond != currentSecond){
     lastSecond = currentSecond;
-    elapsedSeconds++;
+    elapsedSeconds = elapsedSeconds + 1;
     fps = (frameCount-lastFrameCount);
     lastFrameCount = frameCount;
     updateOnce();

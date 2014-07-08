@@ -2,6 +2,7 @@ class View
 {
   public
   
+  int flashAlpha = 0;
   float[] forecast = new float[10];
 
   View(int w, int h){
@@ -36,6 +37,14 @@ class View
       VENT = true;          
     else VENT = false;  
   }
+  
+  void textBox(float str, float centerX, float centerY){
+    noStroke();
+    fill(255);    
+    rect(centerX, centerY, width*.15, height*.05, height*.005);    
+    fill(0);
+    text(str+"kg", centerX+width*.005, centerY + height*.035);  
+  }
   void draw(){
   
     background(0);  
@@ -47,6 +56,7 @@ class View
 //  rect(width*.675, height*.37, width*.3, height*.4, height*.01);
     rect(0, height*.01, width*.0775, height*.645, height*.005);
     rect(0, height/40.+ height/10*0, width*.65, height/11.0, height*.01);
+    rect(button1X-height*.015, height*.525, width*.275, height*.36, height*.005);
 
     textSize(fontSize);
   
@@ -135,83 +145,81 @@ class View
     text(" k ft", width*.005, height*.625-(-1)*height*.6/30.);
     float altScale = balloon.altitude*METERS_TO_FEET/60000.0 * height*.6;
     rect(width*.0366, height*.625-altScale, width*.025, altScale);
-  
-    // BOTTOM VISUALIZATIONS
-    float ballX = width*.52;
-    float ballY = height*.75;
+      
+
+    // BALLOON AND BALLOON STATISTICS
+    float ballX = width*.82;
+    float ballY = height*.675;
     stroke(255);
     strokeWeight(1);
     noFill();
     float diameter = 0;
-    for(float i = 0; i < 8; i++){
+    for(float i = 2; i < 8; i++){
       diameter = sin(i/8.0*1.5708)*height*.2;
       ellipse(ballX, ballY, diameter, diameter);
     }
-    line(ballX-diameter*.5, ballY+diameter*.6, ballX+diameter*.5, ballY+diameter*.6);
-    line(ballX-diameter*.5, ballY+diameter*.58, ballX-diameter*.5, ballY+diameter*.62);
-    line(ballX+diameter*.5, ballY+diameter*.58, ballX+diameter*.5, ballY+diameter*.62);
-    text(balloon.diameter + "m diameter", ballX*.85, height*.9);
-    text(int(balloon.volume) + "m³ volume", ballX*.85, height*.925);
-    text(balloon.mass + "kg ship", ballX*.85, height*.95);
-    
-    text(int(balloon.mass_air*10)/10.0 + "kg air mass", ballX*.831, height*.975);
-
-    // SMALL COLUMN VALUES
-    textSize(int(fontSize*.4));
+    line(ballX-diameter*.5, ballY-diameter*.58, ballX+diameter*.5, ballY-diameter*.58);
+    line(ballX-diameter*.5, ballY-diameter*.56, ballX-diameter*.5, ballY-diameter*.6);
+    line(ballX+diameter*.5, ballY-diameter*.56, ballX+diameter*.5, ballY-diameter*.6);
+    textSize(int(fontSize*.3));
     fill(255);
-    // data boxes
-    rect(width*.175, height*.665, width*.15, height*.05, height*.005);    
-    rect(width*.175, height*.74, width*.15, height*.05, height*.005);    
-    rect(width*.175, height*.815, width*.15, height*.05, height*.005);    
-    rect(width*.175, height*.89, width*.15, height*.05, height*.005);  
-      // up down boxes  
-    text("  LIFT", width*.01, height*.7);
-    text("  DRAG", width*.01, height*.775);
-    text("DISPLACED", width*.01, height*.85);
-    text("     MASS", width*.01, height*.925);
-    text("kg", width*.34, height*.7);
-    text("kg", width*.34, height*.775);
-    text("kg", width*.34, height*.85);
-    text("kg", width*.34, height*.925);   
-   
-    fill(0);
-    noStroke();
-    text(abs(balloon.forceLift), width*.175, height*.7);  
-    text(abs(balloon.forceDrag), width*.175, height*.775);  
-//    text(balloon.G, width*.175, height*.85);  
-//    text(balloon.I, width*.175, height*.925);  
-    text(balloon.volume * atmosphere.density, width*.175, height*.85);  
-    text(balloon.mass + balloon.mass_air, width*.175, height*.925);  
+    text(balloon.diameter + "m diameter", ballX*.9, height*.55);
+//    text(int(balloon.volume) + "m³ volume", ballX*.9, height*.575);
+    text(balloon.mass + "kg ship", ballX*.91, ballY+height*.125);
+    text(int(balloon.mass_air*10)/10.0 + "kg air mass", ballX*.895, ballY+height*.145);
+    text("+", ballX*.86, ballY+height*.145);
+    line(ballX-diameter*.6, ballY+height*.15, ballX+diameter*.8, ballY+height*.15);
+    text(int(10*(balloon.mass + balloon.mass_air))/10.0 + "kg total", ballX*.895, ballY+height*.175);
+    text(int(balloon.volume * atmosphere.density*10)/10.0 + "kg displaced", ballX*.895, ballY+height*.195);  
 
-    textSize(int(fontSize*.75));
-    if(balloon.forceLift > 0){       fill(0);  rect(width*.125, height*.665, height*.05, height*.05, height*.005);   fill(255);  text("▲", width*.13, height*.71);   }
-    else if(balloon.forceLift < 0){  fill(255);  rect(width*.125, height*.665, height*.05, height*.05, height*.005); fill(0);  text("▼", width*.13, height*.71); }
-    if(balloon.forceDrag < 0){       fill(0);  rect(width*.125, height*.74, height*.05, height*.05, height*.005);    fill(255);  text("▲", width*.13, height*.785);  }
-    else if(balloon.forceDrag > 0){  fill(255);  rect(width*.125, height*.74, height*.05, height*.05, height*.005);  fill(0);  text("▼", width*.13, height*.785);}
-//    if(balloon.G < 0){       fill(0);  rect(width*.075, height*.815, height*.05, height*.05, height*.005);   fill(255);  text("▲", width*.08, height*.86);   }
-//    else if(balloon.G > 0){  fill(255);  rect(width*.075, height*.815, height*.05, height*.05, height*.005); fill(0);  text("▼", width*.08, height*.86); }
-//    if(balloon.I < 0){       fill(0);  rect(width*.075, height*.89, height*.05, height*.05, height*.005);    fill(255);  text("▲", width*.08, height*.935);  }
-//    else if(balloon.I > 0){  fill(255);  rect(width*.075, height*.89, height*.05, height*.05, height*.005);  fill(0);  text("▼", width*.08, height*.935);}
+    // LIFT AND DRAG
+    textSize(int(fontSize*.4));
+    textBox(int(balloon.forceLift*10)/10.0, ballX-width*.14, height*.9);
+    textBox(int(-balloon.forceDrag*10)/10.0, ballX+width*.015, height*.9);
+    fill(255);
+    text("  LIFT", ballX-width*.14, height*.98);
+    text("  DRAG", ballX+width*.015, height*.98);
+    textSize(fontSize);
+    fill(255, flashAlpha);  
+    if(balloon.velocity > 0){       text("▲", ballX-fontSize*.3, ballY+fontSize*.25);   }
+    else if(balloon.velocity < 0){  text("▼", ballX-fontSize*.3, ballY+fontSize*.35); }
+      
+      
+    // PREDICTION GRAPH  
+    float boxX = width*.12;
+    float boxY = height*.7;
+    float boxW = width*.45;
+    float boxH = width*.15;
     
-    fill(255);  
-    rect(width*.71, height*.6, width*.25, width*.25, height*.01);    
+    fill(84);  
+    rect(boxX-width*.025, boxY-width*.025, boxW+width*.05, boxH+width*.05, height*.01);    
 
-    stroke(0);
+    noFill();
+    stroke(192);
+    strokeWeight(1);
+    rect(boxX, boxY, boxW, boxH);
+    line(boxX+boxW*.25, boxY, boxX+boxW*.25, boxY+boxH);
+    line(boxX+boxW*.5, boxY, boxX+boxW*.5, boxY+boxH);
+    line(boxX+boxW*.75, boxY, boxX+boxW*.75, boxY+boxH);
+    line(boxX, boxY+boxH*.25, boxX+boxW, boxY+boxH*.25);
+    line(boxX, boxY+boxH*.5, boxX+boxW, boxY+boxH*.5);
+    line(boxX, boxY+boxH*.75, boxX+boxW, boxY+boxH*.75);
+    
+    stroke(255);
     strokeWeight(3);
     for(int i = 1; i < 10; i++){
-      line(width*.72+width*.25*(i-1)/10., height*.6+width*.23-width*.5*forecast[i-1], width*.72 + width*.25*i/10., height*.6+width*.23-width*.5*forecast[i]);
+      line(boxX+boxW*(i-1)/10., boxY+boxH-width*.5*forecast[i-1], boxX + boxW*i/10., boxY+boxH-width*.5*forecast[i]);
     }
      
-    fill(0);
+    fill(255);
     textSize(int(fontSize*.25));
-    text("0 hr", width*.72, height*.925);
-    text("   1 hr", width*.875, height*.925);
-    text("5", width*.72, height*(.925*.75+.65*.25));
-    text("10", width*.72, height*((.925+.65)*.5));
-    text("15", width*.72, height*(.925*.25+.65*.75));
-    text("20,000 m", width*.72, height*.65);
+    text("0 hr", boxX, boxY+boxH+width*.02);
+    text("1 hr", boxX+boxW-width*.02, boxY+boxH+width*.02);
+    text("0", boxX-width*.02, boxY+boxH);
+    text("5", boxX-width*.02, boxY+boxH*.75);
+    text("10", boxX-width*.02, boxY+boxH*.5);
+    text("15", boxX-width*.02, boxY+boxH*.25);
+    text("20,000 m", boxX-width*.02, boxY);
      
-     
-
   } 
 }
