@@ -232,10 +232,10 @@ class View
     text("0 hr", boxX, boxY+boxH+width*.02);
     text("1 hr", boxX+boxW-width*.02, boxY+boxH+width*.02);
     text("0", boxX-width*.02, boxY+boxH);
-    text("5", boxX-width*.02, boxY+boxH*.75);
-    text("10", boxX-width*.02, boxY+boxH*.5);
-    text("15", boxX-width*.02, boxY+boxH*.25);
-    text("20,000 m", boxX-width*.02, boxY);
+    text("16", boxX-width*.02, boxY+boxH*.75);
+    text("32", boxX-width*.02, boxY+boxH*.5);
+    text("49", boxX-width*.02, boxY+boxH*.25);
+    text("65,000 ft", boxX-width*.02, boxY);
      
     stroke(255);
     strokeWeight(1);
