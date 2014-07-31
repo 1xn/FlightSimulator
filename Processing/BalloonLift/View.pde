@@ -185,9 +185,9 @@ class View
     text("DIFF", ballX-width*.03, height*.98);
     text("kg", ballX-width*.19, height*.942);
     textSize(fontSize);
-    fill(flashAlpha, 255);  
-    if(balloon.velocity > 0){       text("▲", ballX-fontSize*.3, ballY+fontSize*.25);   }
-    else if(balloon.velocity < 0){  text("▼", ballX-fontSize*.3, ballY+fontSize*.35); }
+    fill(flashAlpha*.33+168, 255); 
+    if(balloon.velocity > 0){       text("▲", ballX-fontSize*.3, ballY+fontSize*.22);   }
+    else if(balloon.velocity < 0){  text("▼", ballX-fontSize*.3, ballY+fontSize*.353); }
       
     // DIFFERENCE BETWEEN LIFT AND DRAG
     float diff = balloon.forceLift - balloon.forceDrag;
