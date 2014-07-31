@@ -183,6 +183,7 @@ class View
     text("  LIFT", ballX-width*.17, height*.98);
     text("  DRAG", ballX+width*.04, height*.98);
     text("DIFF", ballX-width*.03, height*.98);
+    text("kg", ballX-width*.19, height*.942);
     textSize(fontSize);
     fill(flashAlpha, 255);  
     if(balloon.velocity > 0){       text("▲", ballX-fontSize*.3, ballY+fontSize*.25);   }
