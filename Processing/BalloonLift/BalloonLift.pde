@@ -30,6 +30,30 @@ void updateOnce(){  // called once per second
     balloonForecast.predict_vertical_motion(1, i*360);
     view.forecast[i] = balloonForecast.altitude/50000.;
   }
+  println(view.forecast[3]);
+  boolean isClimbing = false;
+  boolean isInTheAir = false;
+  if(view.forecast[0] < view.forecast[1])
+    isClimbing = true;
+    
+  if(view.forecast[0] > 0)
+    isInTheAir = true;
+    
+  println(isClimbing+" "+isInTheAir);
+    
+//  boolean forecastHasPeak;
+//  int forecastPeakTime;
+//  boolean forecastHasLanding;
+//  float forecastLandingTime;
+  view.forecastHasPeak = false;
+  if(isClimbing){
+    for(int i = 1; i < 9; i++){
+      if(!view.forecastHasPeak  && view.forecast[i] > view.forecast[i+1]){
+        view.forecastHasPeak = true;
+        view.forecastPeakTime = i;
+      }      
+    }
+  }
   if(currentSecond % 2 == 0)
     view.flashAlpha = 0;
   else

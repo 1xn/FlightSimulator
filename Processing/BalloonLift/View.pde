@@ -4,6 +4,10 @@ class View
   
   int flashAlpha = 0;
   float[] forecast = new float[10];
+  boolean forecastHasPeak;
+  int forecastPeakTime;
+  boolean forecastHasLanding;
+  float forecastLandingTime;
 
   View(int w, int h){
     size(w, h);
@@ -41,9 +45,9 @@ class View
   void textBox(float str, float centerX, float centerY){
     noStroke();
     fill(255);    
-    rect(centerX, centerY, width*.15, height*.05, height*.005);    
+    rect(centerX, centerY, width*.12, height*.05, height*.005);    
     fill(0);
-    text(str+"kg", centerX+width*.005, centerY + height*.035);  
+    text(str, centerX+width*.005, centerY + height*.035);  
   }
   void draw(){
   
@@ -115,7 +119,7 @@ class View
     else         secString = "" + sec;
     text(hrString +" : "+ minString +" : "+ secString, width*.725, height*.0875);  
   
-    // DRAW BUTTONS
+    // FIRE VENT BUTTONS
     textSize(fontSize);
     if(FIRE) fill(0);   else  fill(255);
     rect(button1X, button1Y, button1W, button1H, height*.01);
@@ -146,7 +150,6 @@ class View
     float altScale = balloon.altitude*METERS_TO_FEET/60000.0 * height*.6;
     rect(width*.0366, height*.625-altScale, width*.025, altScale);
       
-
     // BALLOON AND BALLOON STATISTICS
     float ballX = width*.82;
     float ballY = height*.675;
@@ -174,16 +177,28 @@ class View
 
     // LIFT AND DRAG
     textSize(int(fontSize*.4));
-    textBox(int(balloon.forceLift*10)/10.0, ballX-width*.14, height*.9);
-    textBox(int(-balloon.forceDrag*10)/10.0, ballX+width*.015, height*.9);
+    textBox(int(balloon.forceLift*10)/10.0, ballX-width*.15, height*.9);
+    textBox(int(-balloon.forceDrag*10)/10.0, ballX+width*.035, height*.9);
     fill(255);
-    text("  LIFT", ballX-width*.14, height*.98);
-    text("  DRAG", ballX+width*.015, height*.98);
+    text("  LIFT", ballX-width*.17, height*.98);
+    text("  DRAG", ballX+width*.04, height*.98);
+    text("DIFF", ballX-width*.03, height*.98);
     textSize(fontSize);
-    fill(255, flashAlpha);  
+    fill(flashAlpha, 255);  
     if(balloon.velocity > 0){       text("▲", ballX-fontSize*.3, ballY+fontSize*.25);   }
     else if(balloon.velocity < 0){  text("▼", ballX-fontSize*.3, ballY+fontSize*.35); }
       
+    // DIFFERENCE BETWEEN LIFT AND DRAG
+    float diff = balloon.forceLift - balloon.forceDrag;
+    
+    fill(255);    
+    rect(ballX-width*.02, height*.9, width*.045, height*.05, height*.005);    
+    fill(0);
+    textSize(fontSize*.66);
+    if(diff > 0.01) text(">", ballX-fontSize*.16, height*.942);
+    if(diff < -0.01) text("<", ballX-fontSize*.16, height*.942);
+//    if(diff > 0.01) text("▲", ballX-fontSize*.16, height*.942);
+//    if(diff < -0.01) text("▼", ballX-fontSize*.16, height*.942);
       
     // PREDICTION GRAPH  
     float boxX = width*.12;
@@ -208,7 +223,7 @@ class View
     stroke(255);
     strokeWeight(3);
     for(int i = 1; i < 10; i++){
-      line(boxX+boxW*(i-1)/10., boxY+boxH-width*.5*forecast[i-1], boxX + boxW*i/10., boxY+boxH-width*.5*forecast[i]);
+      line(boxX+boxW*(i-1)/9., boxY+boxH-width*.5*forecast[i-1], boxX + boxW*i/9., boxY+boxH-width*.5*forecast[i]);
     }
      
     fill(255);
@@ -221,5 +236,12 @@ class View
     text("15", boxX-width*.02, boxY+boxH*.25);
     text("20,000 m", boxX-width*.02, boxY);
      
+    stroke(255);
+    strokeWeight(1);
+    if(forecastHasPeak){
+      line(boxX+boxW*(forecastPeakTime/9.0), boxY+boxH-width*.5*forecast[forecastPeakTime], boxX+boxW*(forecastPeakTime/9.0), boxY+boxH);
+      text(60*forecastPeakTime/10.0 +" min", boxX+boxW*(forecastPeakTime/9.0), boxY+boxH+width*.02);
+//      text(forecast[forecastPeakTime]*50000 +" ft", boxX+boxW*(forecastPeakTime/9.0), boxY+boxH-width*.5*forecast[forecastPeakTime]-width*.005);
+    }
   } 
 }
