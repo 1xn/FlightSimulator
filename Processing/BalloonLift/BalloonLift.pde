@@ -16,6 +16,7 @@ float heatConduct;
 
 void setup(){
   view = new View(800,600);
+  size(800,600);
   atmosphere = new Atmosphere();
   balloon = new Balloon(500, 17, START_TEMP);          // these have to be the same values
   balloonForecast = new Balloon(500, 17, START_TEMP);  //  39.7

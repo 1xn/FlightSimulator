@@ -10,7 +10,6 @@ class View
   float forecastLandingTime;
 
   View(int w, int h){
-    size(w, h);
    
     // FONTS
     textFont(createFont("Courier New",30));
